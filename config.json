@@ -1,0 +1,8 @@
+{
+	"appName": "MLCFL",
+	"githubName": "mlcfl",
+	"apps": [
+		"root",
+		"auth"
+	]
+}

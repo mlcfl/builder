@@ -16,5 +16,9 @@
 		"start": "node actions/start/prod.js",
 		"start:dev": "node actions/start/dev.js",
 		"start:test": "node actions/start/test.js"
-  }
+	},
+	"dependencies": {
+		"chalk": "^5.2.0",
+		"shelljs": "^0.8.5"
+	}
 }
