@@ -1,0 +1,20 @@
+{
+	"license": "CC BY-NC-ND 4.0",
+	"author": "FLighter",
+	"version": "1.0.0",
+	"type": "module",
+	"scripts": {
+		"help": "node actions/help/index.js",
+		"install": "node actions/install/index.js",
+		"reinstall": "node actions/reinstall/index.js",
+		"uninstall": "node actions/uninstall/index.js",
+		"update": "node actions/update/index.js",
+		"test": "node actions/test/index.js",
+		"build": "node actions/build/prod.js",
+		"build:dev": "node actions/build/dev.js",
+		"build:test": "node actions/build/test.js",
+		"start": "node actions/start/prod.js",
+		"start:dev": "node actions/start/dev.js",
+		"start:test": "node actions/start/test.js"
+  }
+}
