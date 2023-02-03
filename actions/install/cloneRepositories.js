@@ -54,8 +54,10 @@ const cloneDocuments = (path) => {
  * Clone "common" repositories
  */
 const cloneCommon = (path) => {
-	return cd(path, 'src/common') && ['all', 'backend', 'frontend'].reduce((success, name) => {
-		return success ? clone(`common-${name}`, name) : false;
+	const parts = ['all', 'backend', 'frontend', 'tests', 'design', 'docs'];
+
+	return cd(path, 'src/common') && parts.reduce((success, name) => {
+		return success ? clone(`common-${name}`) : false;
 	}, true);
 };
 
@@ -66,6 +68,9 @@ const appParts = [
 	'common',
 	'backend',
 	'frontend',
+	'tests',
+	'design',
+	'docs',
 ];
 
 /**
@@ -106,7 +111,7 @@ const cloneApps = async (path, cliApps, flagInclude) => {
 		}
 
 		const installedSuccessfully = appParts.reduce((ok, part) => {
-			return ok ? clone(`app-${app}-${part}`, part) : false;
+			return ok ? clone(`app-${app}-${part}`, `${app}-${part}`) : false;
 		}, true);
 
 		installedSuccessfully
