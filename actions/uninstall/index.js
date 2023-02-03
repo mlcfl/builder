@@ -1,11 +1,15 @@
-import {stdin, stdout} from 'process';
+import {stdin, stdout, argv} from 'process';
 import {createInterface} from 'readline/promises';
 import {readdir, rm} from 'fs/promises';
 import {join, basename} from 'path';
 import chalk from 'chalk';
+import shell from 'shelljs';
 import {error, success} from '../../utils/console.js';
 import {absolutePathToApp} from '../../utils/absolutePathToApp.js';
 import {config} from '../../utils/config.js';
+
+const [, , flag] = argv;
+const isReinstall = flag === '--reinstall';
 
 const {githubName, appName} = config;
 const attention = (text) => chalk.bold.underline(text);
@@ -17,7 +21,9 @@ const attention = (text) => chalk.bold.underline(text);
 	const foldersToRemove = ['src', 'dist', 'data', 'documents'];
 	const rootFolderName = basename(absolutePathToApp);
 	const rl = createInterface({input: stdin, output: stdout});
-	const deleteAll = await rl.question(`Are you sure you want to delete ${attention('the whole')} application? [Y/${attention('N')}] `);
+	const deleteAll = isReinstall
+		? 'yes'
+		: await rl.question(`Are you sure you want to delete ${attention('the whole')} application? [Y/${attention('N')}] `);
 
 	if (!/^(?:y|yes)$/i.test(deleteAll)) {
 		rl.close();
@@ -25,7 +31,9 @@ const attention = (text) => chalk.bold.underline(text);
 		return;
 	}
 
-	const deletePersonal = await rl.question(`Do you want to delete ${attention('your personal data')}? [Y/${attention('N')}] `);
+	const deletePersonal = isReinstall
+		? 'no'
+		: await rl.question(`Do you want to delete ${attention('your personal data')}? [Y/${attention('N')}] `);
 	const deletePersonalData = /^(?:y|yes)$/i.test(deletePersonal);
 	rl.close();
 
@@ -45,5 +53,10 @@ const attention = (text) => chalk.bold.underline(text);
 		}
 	}
 
-	success(`Application ${appName} was successfully uninstalled. Now all you have to do is delete the "builder" and ".github" folders (if you have them).`);
+	if (isReinstall) {
+		success(`Application ${appName} was successfully uninstalled.`);
+		shell.exit(3);
+	} else {
+		success(`Application ${appName} was successfully uninstalled. Now all you have to do is delete the "builder" and ".github" folders (if you have them).`);
+	}
 })();
