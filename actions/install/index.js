@@ -1,10 +1,9 @@
 import {argv} from 'process';
-import {fileURLToPath} from 'url';
-import {join, dirname} from 'path';
 import {readdir} from 'fs/promises';
 import {createStructure} from './createStructure.js';
 import {cloneRepositories} from './cloneRepositories.js';
 import {error, success, warning} from '../../utils/console.js';
+import {absolutePathToApp} from '../../utils/absolutePathToApp.js';
 import {config} from '../../utils/config.js';
 
 const flagInclude = '--include';
@@ -13,9 +12,6 @@ const defaultArgvLength = 2;
 const flagArgsCount = 2;
 const {length} = argv;
 const [, , flag, flagVal] = argv;
-
-const pathname = dirname(fileURLToPath(import.meta.url));
-const absolutePathToApp = join(pathname, '/../../..');
 
 /**
  * Check files count in the root folder after installation
