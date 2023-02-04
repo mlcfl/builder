@@ -6,8 +6,8 @@
 	"scripts": {
 		"help": "node actions/help/index.js",
 		"install": "node actions/install/index.js",
-		"reinstall": "node actions/reinstall/index.js",
 		"uninstall": "node actions/uninstall/index.js",
+		"reinstall": "node actions/reinstall/index.js",
 		"update": "node actions/update/index.js",
 		"test": "node actions/test/index.js",
 		"build": "node actions/build/prod.js",
