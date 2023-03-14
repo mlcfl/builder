@@ -1,0 +1,12 @@
+[
+	"documents",
+	"common",
+	"apps",
+	{
+		"data": [
+			"dev",
+			"test",
+			"prod"
+		]
+	}
+]

@@ -4,20 +4,33 @@
 	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
-		"help": "node actions/help/index.js",
-		"install": "node actions/install/index.js",
-		"uninstall": "node actions/uninstall/index.js",
-		"reinstall": "node actions/reinstall/index.js",
-		"update": "node actions/update/index.js",
-		"test": "node actions/test/index.js",
-		"build": "node actions/build/prod.js",
-		"build:test": "node actions/build/test.js",
-		"start": "node actions/start/prod.js",
-		"start:dev": "node actions/start/dev.js",
-		"start:test": "node actions/start/test.js"
+		"help": "node dist/help.js",
+		"install": "node dist/install.js",
+		"uninstall": "node dist/uninstall.js",
+		"reinstall": "node dist/reinstall.js -r",
+		"update": "node dist/update.js",
+		"test": "node dist/test.js",
+		"build": "node dist/build.js -m prod",
+		"build:test": "node dist/build.js -m test",
+		"start": "node dist/start.js -m prod",
+		"start:test": "node dist/start.js -m test",
+		"start:dev": "node dist/start.js -m dev",
+		"build:builder": "rollup -c --configPlugin typescript2"
 	},
 	"dependencies": {
+		"@rollup/plugin-commonjs": "^24.0.1",
+		"@rollup/plugin-json": "^6.0.0",
+		"@rollup/plugin-node-resolve": "^15.0.1",
+		"@types/node": "^18.14.5",
+		"@types/shelljs": "^0.8.11",
 		"chalk": "^5.2.0",
-		"shelljs": "^0.8.5"
+		"commander": "^10.0.0",
+		"dotenv": "^16.0.3",
+		"rollup": "^3.18.0",
+		"rollup-plugin-copy": "^3.4.0",
+		"rollup-plugin-typescript2": "^0.34.1",
+		"shelljs": "^0.8.5",
+		"tslib": "^2.5.0",
+		"typescript": "^4.9.5"
 	}
 }

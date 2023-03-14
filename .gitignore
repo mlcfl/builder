@@ -1,1 +1,6 @@
+dist
 node_modules
+
+src/env/.env.dev
+src/env/.env.test
+src/env/.env.prod

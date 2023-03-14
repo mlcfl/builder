@@ -1,0 +1,31 @@
+{
+	"projectName": "MLCFL",
+	"projectRootDirName": "mlcfl",
+	"remoteRepositoryUri": "https://github.com/mlcfl",
+	"defaultApp": "root",
+	"apps": [
+		"root",
+		"auth"
+	],
+	"noAuthApps": [
+		"welcome"
+	],
+	"parts": {
+		"common": [
+			"all",
+			"backend",
+			"frontend",
+			"tests",
+			"design",
+			"docs"
+		],
+		"app": [
+			"common",
+			"backend",
+			"frontend",
+			"tests",
+			"design",
+			"docs"
+		]
+	}
+}
