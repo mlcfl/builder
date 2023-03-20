@@ -4,7 +4,7 @@ An entry point to the entire MLCFL infrastructure.
 
 ## How to use?
 
-First of all you need an installed the next programms:
+First of all you need an installed the next programs:
 - [Node.js](https://nodejs.org) (Node.js version 18.13.0+, npm version 7.5.6+).
 - [pnpm](https://pnpm.io) (version 7.28.0+)
 
