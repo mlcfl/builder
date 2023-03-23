@@ -1,6 +1,7 @@
 import {program} from 'commander';
 import {Validator, Modes} from './services';
-import {commanderOptions} from './utils';
+import {commanderOptions, CommanderOptionsTypes} from './utils';
+import {build} from './actions/build';
 
 /**
  * Entry
@@ -18,8 +19,7 @@ const args = program
 	.addOption(optionExclude)
 	.addOption(optionMode)
 	.parse()
-	.opts();
+	.opts<CommanderOptionsTypes.Build>();
 
 Validator.checkArguments(args);
-
-console.log('Action "build:*" is not implemented yet');
+await build(args);

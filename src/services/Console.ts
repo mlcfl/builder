@@ -15,4 +15,8 @@ export class Console {
 	static error(text: string): never {
 		throw new Error(chalk.red(text));// The error object is already prefixed with "Error:"
 	}
+
+	static info(text: string): void {
+		console.info(chalk.blueBright(text));
+	}
 }

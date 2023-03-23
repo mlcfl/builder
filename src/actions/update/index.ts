@@ -38,11 +38,8 @@ export const pullApps = ({include, exclude}: CommanderOptionsTypes.IncludeExclud
 	Validator.checkNonExistentApps(apps, cliApps);
 
 	for (const app of apps) {
-		// Skip app if it matches
-		if (cliApps.length) {
-			if ((include && !cliApps.includes(app)) || (exclude && cliApps.includes(app))) {
-				continue;
-			}
+		if (Validator.skipApp(app, {include, exclude})) {
+			continue;
 		}
 
 		// Update all parts
