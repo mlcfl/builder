@@ -8,5 +8,11 @@ export namespace CommanderOptionsTypes {
 
 	export interface Build extends IncludeExclude {
 		readonly mode: ModeOptions;
+		readonly watch?: boolean;// in "start:dev --watch" mode
+	}
+
+	export interface Start extends IncludeExclude {
+		readonly mode: ModeOptions;
+		readonly watch?: boolean;
 	}
 }

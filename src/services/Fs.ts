@@ -80,7 +80,7 @@ export class Fs {
 	static getActionsEntryPoints(): string[] {
 		const pathToSrc = join(this.absoluteRootPath, 'builder/src');
 
-		return readdirSync(pathToSrc).reduce<string[]>((result, item) => {
+		const entryPoints = readdirSync(pathToSrc).reduce<string[]>((result, item) => {
 			const path = join(pathToSrc, item);
 			const stats = statSync(path);
 
@@ -90,5 +90,10 @@ export class Fs {
 
 			return result;
 		}, []);
+
+		// An additional independent entry point for the "start" action
+		entryPoints.push(join(pathToSrc, 'actions/start/index.ts'));
+
+		return entryPoints;
 	}
 }

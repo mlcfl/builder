@@ -14,7 +14,11 @@ export class Validator {
 		}
 
 		const nonExistentApps = toCheck.filter(app => !standard.includes(app));
-		nonExistentApps.length && Console.warning(`Passed applications "${nonExistentApps.join(', ')}" don't exist and will be omitted.`);
+		const {length} = nonExistentApps;
+		const appText = length > 1 ? 'applications' : 'application';
+		const dontText = length > 1 ? "don't" : "doesn't";
+
+		length && Console.warning(`Passed ${appText} "${nonExistentApps.join(', ')}" ${dontText} exist and will be omitted.`);
 	}
 
 	/**

@@ -1,52 +1,53 @@
+import {exit, argv} from 'node:process';
 import {join} from 'node:path';
-import {program} from 'commander';
-import {Validator, Modes, ModeOptions, Fs, Console} from './services';
-import {commanderOptions} from './utils';
-import {config} from './config';
-import {env} from './env';
-
-const getDescription = (mode: ModeOptions) => {
-	const opening = mode === ModeOptions.Dev ? 'Builds and starts' : 'Starts';
-	return `${opening} the project in ${Modes.getHumanText(mode)}.`;
-};
+import {RollupWatcher, RollupWatcherEvent} from 'rollup';
+import nodemon from 'nodemon';
+import chalk from 'chalk';
+import {Fs, Console, ModeOptions} from './services';
+import {handleCliArgs} from './actions/start/handleCliArgs';// special import
+import {getWatchEntries} from './actions/start/getWatchEntries';
 
 /**
  * Entry
  */
-const {
-	include: optionInclude,
-	exclude: optionExclude,
-	watch: optionWatch,
-	mode: optionMode,
-} = commanderOptions;
+const args = handleCliArgs();
+const indexPath = 'builder/dist/actions/start/index.js';
+const {mode, watch} = args;
 
-const mode = Modes.getCurrent(optionMode);
-program
-	.description(getDescription(mode))
-	.addOption(optionInclude)
-	.addOption(optionExclude)
-	.addOption(optionMode);
-
-if (mode === ModeOptions.Dev) {
-	program.addOption(optionWatch);
-}
-
-const args = program.parse().opts();
-Validator.checkArguments(args);
-
-// Dynamic import to exclude from the "build:builder" compilation process
-const pathToEntryPoint = join(Fs.absoluteRootPathDi, 'common/common-backend/dist/index.js');
-
-try {
-	const {boot} = await import(pathToEntryPoint);
-
-	boot({env: env(mode), config});
-} catch (e) {
-	if (e instanceof Error && 'code' in e) {
-		if (e.code === 'ERR_MODULE_NOT_FOUND') {
-			Console.error(`The entry point on path "${pathToEntryPoint}" not found. Perhaps you forgot to build the project with the "build" action.`);
+// watch is true only in the dev mode
+if (watch) {
+	const {watcherBackend} = await import('./build') as {watcherBackend: RollupWatcher};
+	// Start nodemon after the first "watch" build was completed
+	const startNodemon = ({code}: RollupWatcherEvent) => {
+		if (code !== 'END') {
+			return;
 		}
+
+		watcherBackend.off('event', startNodemon);
+
+		nodemon({
+			script: join(Fs.absoluteRootPath, indexPath),
+			watch: getWatchEntries(args),
+			args: argv.slice(2),
+			delay: 1000,
+		});
+
+		nodemon
+			.on('restart', () => Console.info('Backend has been restarted.'))
+			.once('start', () => Console.info('The project has been started in "watch" mode.'))
+			.once('crash', () => {
+				console.error(chalk.red('Backend has been crashed.'));
+				nodemon.emit('quit');
+				exit(1);
+			});
+	};
+
+	watcherBackend.on('event', startNodemon);
+} else {
+	if (mode === ModeOptions.Dev) {
+		await import('./build');
 	}
 
-	throw e;
+	Console.info('The project has been started.');
+	await import(join(Fs.absoluteRootPathDi, indexPath));
 }

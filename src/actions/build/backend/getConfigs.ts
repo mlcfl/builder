@@ -33,6 +33,10 @@ export const getConfigs = ({mode, ...cliApps}: CommanderOptionsTypes.Build): Rol
 			external: [
 				/node_modules/,
 			],
+			watch: {
+				buildDelay: 1000,
+				exclude: 'node_modules/**',
+			},
 		});
 	});
 };

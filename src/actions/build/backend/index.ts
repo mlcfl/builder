@@ -1,13 +1,15 @@
-import {exit} from 'node:process';
-import {rollup} from 'rollup';
+import {rollup, watch, RollupOptions, RollupWatcher, RollupWatcherEvent} from 'rollup';
 import chalk from 'chalk';
-import {Console} from '~/services';
+import {Console, Fs} from '~/services';
 import {CommanderOptionsTypes} from '~/utils';
-import {getConfigs} from './config';
+import {getConfigs} from './getConfigs';
+import {handleError} from './handleError';
 
-export const backend = async (args: CommanderOptionsTypes.Build): Promise<void> => {
+/**
+ * Just build
+ */
+const build = async (configs: RollupOptions[]): Promise<void> => {
 	Console.info('Starting backend building...');
-	const configs = getConfigs(args);
 
 	for (const {output, ...input} of configs) {
 		if (!output || Array.isArray(output)) {
@@ -20,21 +22,62 @@ export const backend = async (args: CommanderOptionsTypes.Build): Promise<void> 
 			await bundle.write(output);
 			await bundle.close();
 		} catch (e) {
-			if (e instanceof Error) {
-				const {name, message} = e;
-				const code = 'code' in e ? `(code ${e.code})` : '';
-				const plugin = 'plugin' in e ? `(plugin ${e.plugin})` : '';
-				const entry = 'id' in e ? `Entry file: ${e.id}\n` : '';
-				const intro = [name, code, plugin].join(' ') + ':\n';
-				const text = chalk.red(intro) + entry + message;
-
-				console.error(text);
-				exit(1);
-			}
-
-			throw e;
+			handleError(e);
 		}
 	}
 
 	Console.success('Backend building successfully completed.');
+};
+
+/**
+ * Build in "watch" mode
+ */
+const buildWatch = (configs: RollupOptions[]): RollupWatcher => {
+	Console.info('Starting backend building in "watch" mode...');
+
+	let alreadyShown: unknown[] = [];
+	let firstBuild = true;
+	const onEvent = (e: RollupWatcherEvent) => {
+		const {code} = e;
+
+		if (code === 'END') {
+			alreadyShown = [];
+			firstBuild = false;
+			return;
+		}
+
+		if (code === 'ERROR') {
+			alreadyShown = handleError(e.error, {alreadyShown, firstBuild});
+			return;
+		}
+
+		if (code === 'BUNDLE_END') {
+			if (!firstBuild) {
+				Console.success(`Rebuilt in ${e.duration}ms`);
+			}
+
+			// This will allow plugins to clean up resources
+			e.result.close();
+		}
+	};
+
+	return watch(configs)
+		.on('event', onEvent)
+		.on('restart', () => console.log('Backend: restarting build...'))
+		.on('close', () => Console.warning('Backend: the watcher was closed for some reason.'))
+		.on('change', (id, {event}) => {
+			const file = chalk.blueBright(id.slice(Fs.absoluteRootPath.length));
+			console.log(`Backend: "${file}" was ${event}d.`);
+		});
+};
+
+/**
+ * Build backend
+ */
+export const backend = async (args: CommanderOptionsTypes.Build): Promise<void | RollupWatcher> => {
+	const configs = getConfigs(args);
+
+	return args.watch
+		? buildWatch(configs)
+		: await build(configs);
 };
