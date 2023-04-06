@@ -1,36 +1,30 @@
 import {join} from 'node:path';
-import {Fs, Validator} from '~/services';
-import {CommanderOptionsTypes} from '~/utils';
-import {config} from '~/config';
-
-const {apps} = config;
+import {Project, Fs, CliArgs} from '~/services';
 
 /**
  * Return all dist points for applications and common part
  * When frontend was changed, there is no need to restart nodemon.
  * That's why there are only common parts and backend in the paths.
  */
-export const getWatchEntries = ({include, exclude}: CommanderOptionsTypes.IncludeExclude): string[] => {
+export const getWatchEntries = async (args: CliArgs.Start): Promise<string[]> => {
 	const {absoluteRootPath} = Fs;
 	const entries: string[] = [];
 
 	// Add common part
-	entries.push(
-		join(absoluteRootPath, 'common/common-backend/dist/*'),
-		join(absoluteRootPath, 'common/common-all/dist/*'),
-	);
+	await Project.onCommon(args, ['all', 'backend'], (common, parts) => {
+		for (const part of parts) {
+			const path = join(absoluteRootPath, `common/${common}-${part}/dist/*`);
+			entries.push(path);
+		}
+	});
 
 	// Add applications
-	for (const app of apps) {
-		if (Validator.skipApp(app, {include, exclude})) {
-			continue;
+	await Project.onEachApp(args, ['common', 'backend'], (app, parts) => {
+		for (const part of parts) {
+			const path = join(absoluteRootPath, `apps/${app}/${app}-${part}/dist/*`);
+			entries.push(path);
 		}
-
-		entries.push(
-			join(absoluteRootPath, `apps/${app}/${app}-backend/dist/*`),
-			join(absoluteRootPath, `apps/${app}/${app}-common/dist/*`),
-		);
-	}
+	});
 
 	return entries;
 };

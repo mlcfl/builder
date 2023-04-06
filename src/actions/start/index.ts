@@ -1,7 +1,13 @@
-import {handleCliArgs} from './handleCliArgs';// special import
-import {start} from './start';
+import {CliArgs} from '~/services';
+import {run} from './run';
+import {runWatch} from './runWatch';
 
-// Arguments are parsed a second time if called by nodemon
-const args = handleCliArgs(true);
-
-await start(args);
+/**
+ * Start
+ */
+export const start = async (args: CliArgs.Start): Promise<void> => {
+	// Is true only in the dev mode
+	args.watch
+		? await runWatch(args)
+		: await run(args);
+};

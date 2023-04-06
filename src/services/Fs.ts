@@ -4,7 +4,9 @@ import {cwd} from 'node:process';
 import {join, extname} from 'node:path';
 import shell from 'shelljs';
 import {Console} from './Console';
-import {Tree} from './Fs.types';
+
+type TreeItem = string | Record<string, TreeItem[]>;
+type Tree = TreeItem[];
 
 /**
  * Work with file system
@@ -91,8 +93,8 @@ export class Fs {
 			return result;
 		}, []);
 
-		// An additional independent entry point for the "start" action
-		entryPoints.push(join(pathToSrc, 'actions/start/index.ts'));
+		// An additional independent entry point for backend nodemon
+		entryPoints.push(join(pathToSrc, 'actions/start/nodemonMiddleware.ts'));
 
 		return entryPoints;
 	}

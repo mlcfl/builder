@@ -1,13 +1,15 @@
 import {join} from 'node:path';
-import {Fs, Console} from '~/services';
-import {CommanderOptionsTypes} from '~/utils';
+import {Fs, Console, CliArgs} from '~/services';
 import {config} from '~/config';
 import {env} from '~/env';
 
-export const start = async (args: CommanderOptionsTypes.Start): Promise<void> => {
+/**
+ * The main start point
+ */
+export const bootProject = async (args: CliArgs.Start): Promise<void> => {
 	const {mode} = args;
 	// Dynamic import to exclude from the "build:builder" compilation process
-	const pathToEntryPoint = join(Fs.absoluteRootPathDi, 'common/common-backend/dist/index.js');
+	const pathToEntryPoint = join(Fs.absoluteRootPathDi, 'common/common-backend/dist/boot.js');
 
 	try {
 		const {boot} = await import(pathToEntryPoint);
@@ -25,7 +27,7 @@ export const start = async (args: CommanderOptionsTypes.Start): Promise<void> =>
 		 */
 		if (e instanceof Error && 'code' in e) {
 			if (e.code === 'ERR_MODULE_NOT_FOUND') {
-				Console.error(`The entry point on path "${pathToEntryPoint}" not found. Perhaps you forgot to build the project with the "build" action.`);
+				Console.error(`The entry point on path "${pathToEntryPoint}" not found. Perhaps you forgot to build the project with the "build" action. The error message: ${e.message}`);
 			}
 
 			// Any other codes...
