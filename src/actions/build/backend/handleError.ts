@@ -1,20 +1,23 @@
 import {exit} from 'node:process';
 import chalk from 'chalk';
 
-type Options = {
-	alreadyShown: unknown[],
+export type Options<T> = {
+	alreadyShown: T[],
 	firstBuild: boolean,
+};
+
+const defaultOptions: Options<never> = {
+	alreadyShown: [],
+	firstBuild: true,
 };
 
 /**
  * Show or throw
  */
-export const handleError = (
-	e: unknown,
-	{alreadyShown, firstBuild}: Options = {alreadyShown: [], firstBuild: true}
-): unknown[] => {
+export const handleError = <T>(e: T, options: Options<T | string> = defaultOptions): (T | string)[] => {
+	const {alreadyShown, firstBuild} = options;
 	let isString = false;
-	let error;
+	let error: T | string;
 
 	// Try to stringify
 	if (e instanceof Error) {

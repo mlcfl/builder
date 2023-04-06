@@ -1,20 +1,27 @@
 import {defineConfig, RollupOptions} from 'rollup';
-import commonjs from '@rollup/plugin-commonjs';
-import {nodeResolve} from '@rollup/plugin-node-resolve';
-import json, {RollupJsonOptions} from '@rollup/plugin-json';
-import typescript from 'rollup-plugin-typescript2';
-import {CommanderOptionsTypes} from '~/utils';
-import {getEntries} from './getEntries';
+import {CliArgs} from '~/services';
+import {getEntries, Entry} from './getEntries';
+import {pluginAliases} from './pluginAliases';
+import {pluginJson} from './pluginJson';
+import {pluginNodeResolve} from './pluginNodeResolve';
+import {pluginCommonJs} from './pluginCommonJs';
+import {pluginTypescript} from './pluginTypescript';
+import {external} from './external';
+import {watch} from './watch';
 
-const pluginJsonConfig: RollupJsonOptions = {
-	preferConst: true,
-	namedExports: false,
-};
+/**
+ * Rollup configuration for each entry file
+ */
+export const getConfigs = async (args: CliArgs.Build): Promise<RollupOptions[]> => {
+	const {mode} = args;
+	const entries = await getEntries(args);
+	const getConfig = (entry: Entry): RollupOptions => {
+		const {
+			inputFile,
+			distDir,
+			tsConfigPath,
+		} = entry;
 
-export const getConfigs = ({mode, ...cliApps}: CommanderOptionsTypes.Build): RollupOptions[] => {
-	const entries = getEntries(cliApps);
-
-	return entries.map(({inputFile, distDir, tsConfigPath}) => {
 		return defineConfig({
 			input: inputFile,
 			output: {
@@ -23,20 +30,16 @@ export const getConfigs = ({mode, ...cliApps}: CommanderOptionsTypes.Build): Rol
 				preserveModules: true,
 			},
 			plugins: [
-				json(pluginJsonConfig),
-				nodeResolve(),
-				commonjs(),
-				typescript({
-					tsconfig: tsConfigPath,
-				}),
+				pluginAliases(),
+				pluginJson(),
+				pluginNodeResolve(),
+				pluginCommonJs(),
+				pluginTypescript(tsConfigPath),
 			],
-			external: [
-				/node_modules/,
-			],
-			watch: {
-				buildDelay: 1000,
-				exclude: 'node_modules/**',
-			},
+			external: external(entry),
+			watch,
 		});
-	});
+	};
+
+	return entries.map(getConfig);
 };

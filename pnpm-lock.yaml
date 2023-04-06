@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@rollup/plugin-alias': ^4.0.3
   '@rollup/plugin-commonjs': ^24.0.1
   '@rollup/plugin-json': ^6.0.0
   '@rollup/plugin-node-resolve': ^15.0.1
@@ -19,6 +20,7 @@ specifiers:
   typescript: ^4.9.5
 
 dependencies:
+  '@rollup/plugin-alias': 4.0.3_rollup@3.18.0
   '@rollup/plugin-commonjs': 24.0.1_rollup@3.18.0
   '@rollup/plugin-json': 6.0.0_rollup@3.18.0
   '@rollup/plugin-node-resolve': 15.0.1_rollup@3.18.0
@@ -61,6 +63,19 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
+    dev: false
+
+  /@rollup/plugin-alias/4.0.3_rollup@3.18.0:
+    resolution: {integrity: sha512-ZuDWE1q4PQDhvm/zc5Prun8sBpLJy41DMptYrS6MhAy9s9kL/doN1613BWfEchGVfKxzliJ3BjbOPizXX38DbQ==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      rollup: 3.18.0
+      slash: 4.0.0
     dev: false
 
   /@rollup/plugin-commonjs/24.0.1_rollup@3.18.0:
@@ -785,6 +800,11 @@ packages:
   /slash/3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
+    dev: false
+
+  /slash/4.0.0:
+    resolution: {integrity: sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==}
+    engines: {node: '>=12'}
     dev: false
 
   /supports-color/5.5.0:
