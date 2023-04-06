@@ -1,65 +1,61 @@
-import {Fs, Git, Console, Validator} from '../../services';
-import {CommanderOptionsTypes} from '../../utils';
-import {config} from '../../config';
+import {Fs, Git, Console, Project, CliArgs} from '~/services';
 
-const {apps, parts} = config;
 const {absoluteRootPath} = Fs;
 
 /**
  * Clone "documents" repository
  */
-const cloneDocuments = (): void => {
-	Fs.cd(absoluteRootPath);
-	Git.clone(Git.getUri('documents'));
-	Console.success('Documents cloned successfully.');
+const cloneDocuments = async (args: CliArgs.Install): Promise<void> => {
+	await Project.onDocuments(args, (name) => {
+		Fs.cd(absoluteRootPath);
+		Git.clone(Git.getUri(name));
+		Console.success('Documents cloned successfully.');
+	});
 };
 
 /**
  * Clone "common" repositories
  */
-const cloneCommon = (): void => {
-	Fs.cd(absoluteRootPath, 'common');
-	parts.common.forEach((part) => {
-		Git.clone(Git.getUri(`common-${part}`));
+const cloneCommon = async (args: CliArgs.Install): Promise<void> => {
+	await Project.onCommon(args, (name, parts) => {
+		Fs.cd(absoluteRootPath, name);
+
+		for (const part of parts) {
+			Git.clone(Git.getUri(`${name}-${part}`));
+		}
+
+		Console.success(`Common "${parts.join(', ')}" cloned successfully.`);
 	});
-	Console.success('Common parts cloned successfully.');
 };
 
 /**
  * Clone apps repositories
  */
-const cloneApps = async ({include, exclude}: CommanderOptionsTypes.IncludeExclude): Promise<void> => {
-	// To avoid duplicates, e.g. in the "reinstall" action
-	const cliApps = [...new Set(include ?? exclude ?? [])];
-	Validator.checkNonExistentApps(apps, cliApps);
-
-	for (const app of apps) {
-		if (Validator.skipApp(app, {include, exclude})) {
-			continue;
-		}
-
+const cloneApps = async (args: CliArgs.Install): Promise<void> => {
+	await Project.onEachApp(args, async (app, parts) => {
 		// Create a directory
 		const pathToApp = `apps/${app}`;
 		await Fs.createDir(absoluteRootPath, pathToApp);
 		Fs.cd(absoluteRootPath, pathToApp);
 
-		// Clone all parts
+		// Clone parts
 		try {
-			parts.app.forEach((part) => {
+			for (const part of parts) {
 				Git.clone(Git.getUri(`app-${app}-${part}`), `${app}-${part}`);
-			});
-			Console.success(`Application "${app}" cloned successfully.`);
+			}
+
+			Console.success(`Application "${app}" (${parts.join(', ')}) cloned successfully.`);
 		} catch (e) {
-			Console.error(`Failed to fully clone the application: "${app}". Installation stopped.`);
+			Console.error(`Failed to clone the application: "${app}". Installation stopped.`);
 		}
-	}
+	});
 };
 
 /**
  * Clone git repositories into their directories
  */
-export const cloneRepositories = async (apps: CommanderOptionsTypes.IncludeExclude): Promise<void> => {
-	cloneDocuments();
-	cloneCommon();
-	await cloneApps(apps);
+export const cloneRepositories = async (args: CliArgs.Install): Promise<void> => {
+	await cloneDocuments(args);
+	await cloneCommon(args);
+	await cloneApps(args);
 };

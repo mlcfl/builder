@@ -1,7 +1,7 @@
 import {fileURLToPath} from 'node:url';
 import {join, dirname} from 'node:path';
 import dotenv from 'dotenv';
-import {ModeOptions} from '../services';
+import {CliModes} from '~/services';
 import {Env} from './types';
 
 let config: Env;
@@ -9,7 +9,7 @@ let config: Env;
 /**
  * Return env config file
  */
-export const env = (mode: ModeOptions): Env => {
+export const env = (mode: CliModes): Env => {
 	if (!config) {
 		const pathToThis = dirname(fileURLToPath(import.meta.url));
 		const path = join(pathToThis, `.env.${mode}`);

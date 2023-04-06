@@ -10,7 +10,7 @@ First of all you need an installed the next programs:
 
 Create a directory `mlcfl` on your PC. Then download (clone) this repository into it and call sequentially in the console
 ```
-pnpm i
+pnpm i --frozen-lockfile
 pnpm build:builder
 pnpm run install
 pnpm run build
