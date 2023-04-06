@@ -8,12 +8,21 @@ First of all you need an installed the next programs:
 - [Node.js](https://nodejs.org) (Node.js version 18.13.0+, npm version 7.5.6+).
 - [pnpm](https://pnpm.io) (version 7.28.0+)
 
-Create a directory `mlcfl` on your PC. Then download (clone) this repository into it and call sequentially in the console
+Create a directory `mlcfl` on your PC. Then download (clone) this repository into it, go to this directory and call sequentially in the console
 ```
-pnpm i --frozen-lockfile
+pnpm i --ignore-scripts --frozen-lockfile
+```
+> If you have an error on the above step, try to run `pnpm i --ignore-scripts --fix-lockfile`.
+```
 pnpm build:builder
+```
+```
 pnpm run install
+```
+```
 pnpm run build
+```
+```
 pnpm start
 ```
 
