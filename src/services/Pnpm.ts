@@ -63,10 +63,12 @@ export class Pnpm {
 			}
 
 			const path = isCommon ? `common/${name}-${part}` : `apps/${name}/${name}-${part}`;
-			const noFiles = await this.noRequiredFiles(join(Fs.absoluteRootPath, path));
+			const pathAbsolute = join(Fs.absoluteRootPath, path);
+			const isPackageJson = await this.isPackageJson(pathAbsolute);
+			const isLockFile = await this.isLockFile(pathAbsolute);
 
-			if (noFiles) {
-				Console.warning(`There is no "package.json" or "pnpm-lock.yaml" file for "${path}". Dependency installation skipped.`);
+			if (!isPackageJson && !isLockFile) {
+				Console.warning(`There is no "package.json" and "pnpm-lock.yaml" file for "${path}". Dependency installation skipped.`);
 				continue;
 			}
 
@@ -74,9 +76,14 @@ export class Pnpm {
 			Fs.cd(Fs.absoluteRootPath, path);
 
 			// Install dependencies
-			this.install(path);
+			if (isLockFile) {
+				this.install(path);
+			}
+
 			// Linking
-			dirs[part].forEach(link => this.link(path, link));
+			if (isPackageJson) {
+				dirs[part].forEach(link => this.link(path, link));
+			}
 		}
 
 		return result;
@@ -110,17 +117,30 @@ export class Pnpm {
 	}
 
 	/**
-	 * Check for package.json and pnpm-lock.yaml
+	 * Check for package.json
 	 */
-	private static async noRequiredFiles(path: string): Promise<boolean> {
+	private static async isPackageJson(path: string): Promise<boolean> {
 		const {F_OK} = constants;
 
 		try {
 			await access(join(path, 'package.json'), F_OK);
-			await access(join(path, 'pnpm-lock.yaml'), F_OK);
-			return false;
-		} catch (e) {
 			return true;
+		} catch (e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Check for pnpm-lock.yaml
+	 */
+	private static async isLockFile(path: string): Promise<boolean> {
+		const {F_OK} = constants;
+
+		try {
+			await access(join(path, 'pnpm-lock.yaml'), F_OK);
+			return true;
+		} catch (e) {
+			return false;
 		}
 	}
 }
