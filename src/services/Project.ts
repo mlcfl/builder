@@ -1,4 +1,5 @@
 import {Base} from './Cli/Arguments';
+import {Fs} from './Fs';
 import {config} from '~/config';
 
 type Cb<T> = (name: string, parts: string[]) => T;
@@ -11,6 +12,18 @@ type SkipArgs = {
  * Cycles through different parts of the project
  */
 export class Project {
+	private static _ifExists = false;
+
+	/**
+	 * Skip callback if directory does not physically exist
+	 *
+	 * Work only for the next one call
+	 */
+	static get ifExists(): typeof Project {
+		this._ifExists = true;
+		return Project;
+	}
+
 	/**
 	 * On "builder" directory
 	 */
@@ -29,8 +42,9 @@ export class Project {
 	static async onDocuments<T extends Base, U>(args: T, cb: (name: string) => U): Promise<U | void> {
 		const name = 'documents';
 		const {strict} = args;
+		const execute = !strict || (strict && !this.skipApp(args, name));
 
-		if (!strict || (strict && !this.skipApp(args, name))) {
+		if (await this.exists(name) && execute) {
 			return await cb(name);
 		}
 	}
@@ -48,16 +62,19 @@ export class Project {
 		const filter = isFunction ? common : filterOrCb;
 		const callback = isFunction ? filterOrCb : cb as Cb<U>;
 
-		if (!strict) {
-			const filteredParts = common.filter(part => filter.includes(part));
+		if (strict && this.skipApp(args, name)) {
+			this._ifExists = false;
+			return;
+		}
 
+		const filteredParts = await this.filterParts(
+			common,
+			part => `common/${name}-${part}`,
+			part => filter.includes(part) && (strict ? !this.skipPart(args, part) : true),
+		);
+
+		if (filteredParts.length) {
 			return await callback(name, filteredParts);
-		} else if (!this.skipApp(args, name)) {
-			const filteredParts = common.filter(part => !this.skipPart(args, part) && filter.includes(part));
-
-			if (filteredParts.length) {
-				return await callback(name, filteredParts);
-			}
 		}
 	}
 
@@ -78,13 +95,18 @@ export class Project {
 				continue;
 			}
 
-			const filteredParts = parts.app.filter(part => !this.skipPart(args, part) && filter.includes(part));
+			const filteredParts = await this.filterParts(
+				parts.app,
+				part => `apps/${app}/${app}-${part}`,
+				part => !this.skipPart(args, part) && filter.includes(part),
+			);
 
 			if (filteredParts.length) {
 				results.push(await callback(app, filteredParts));
 			}
 		}
 
+		this._ifExists = false;
 		return results;
 	}
 
@@ -118,5 +140,42 @@ export class Project {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Filter parts
+	 */
+	private static async filterParts(
+		parts: string[],
+		pathTemplate: (part: string) => string,
+		filterCb: (part: string) => boolean,
+	): Promise<string[]> {
+		const lastIndex = parts.length - 1;
+		const result: string[] = [];
+
+		for (const [i, part] of Object.entries(parts)) {
+			const physicallyExists = await this.exists(pathTemplate(part), Number(i) === lastIndex);
+
+			if (physicallyExists && filterCb(part)) {
+				result.push(part);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Check for physically existence
+	 */
+	private static async exists(path: string, changeFlag = true): Promise<boolean> {
+		if (!this._ifExists) {
+			return true;
+		}
+
+		if (changeFlag) {
+			this._ifExists = false;
+		}
+
+		return await Fs.exists(Fs.absoluteRootPath, path);
 	}
 }

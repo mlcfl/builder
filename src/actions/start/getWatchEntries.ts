@@ -11,7 +11,7 @@ export const getWatchEntries = async (args: CliArgs.Start): Promise<string[]> =>
 	const entries: string[] = [];
 
 	// Add common part
-	await Project.onCommon(args, ['all', 'backend'], (common, parts) => {
+	await Project.ifExists.onCommon(args, ['all', 'backend'], (common, parts) => {
 		for (const part of parts) {
 			const path = join(absoluteRootPath, `common/${common}-${part}/dist/*`);
 			entries.push(path);
@@ -19,7 +19,7 @@ export const getWatchEntries = async (args: CliArgs.Start): Promise<string[]> =>
 	});
 
 	// Add applications
-	await Project.onEachApp(args, ['common', 'backend'], (app, parts) => {
+	await Project.ifExists.onEachApp(args, ['common', 'backend'], (app, parts) => {
 		for (const part of parts) {
 			const path = join(absoluteRootPath, `apps/${app}/${app}-${part}/dist/*`);
 			entries.push(path);

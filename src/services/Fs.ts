@@ -30,19 +30,30 @@ export class Fs {
 	}
 
 	/**
+	 * Check existence (directory or file)
+	 */
+	static async exists(...paths: string[]): Promise<boolean> {
+		const path = join(...paths);
+
+		try {
+			await access(path, constants.F_OK);
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
+
+	/**
 	 * Create a new directory
 	 */
 	static async createDir(...paths: string[]): Promise<void> {
 		const path = join(...paths);
 
-		try {
+		await this.exists(path)
 			// If exists, send warning
-			await access(path, constants.F_OK);
-			Console.warning(`Directory "${path}" already exists. Nothing bad, but it would be nice to check its permissions.`);
-		} catch (e) {
+			? Console.warning(`Directory "${path}" already exists. Nothing bad, but it would be nice to check its permissions.`)
 			// Doesn't exist, create
-			await mkdir(path);
-		}
+			: await mkdir(path);
 	}
 
 	/**

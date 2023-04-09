@@ -4,7 +4,7 @@ import {Project, Git, Console, Pnpm, CliArgs} from '~/services';
  * Update applications
  */
 export const updateApps = async (args: CliArgs.Update): Promise<void> => {
-	await Project.onEachApp(args, async (app, parts) => {
+	await Project.ifExists.onEachApp(args, async (app, parts) => {
 		try {
 			for (const part of parts) {
 				Git.pull(`apps/${app}/${app}-${part}`);

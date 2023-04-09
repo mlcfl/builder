@@ -1,4 +1,3 @@
-import {access, constants} from 'node:fs/promises';
 import {join} from 'node:path';
 import shell from 'shelljs';
 import {Fs} from './Fs';
@@ -64,8 +63,8 @@ export class Pnpm {
 
 			const path = isCommon ? `common/${name}-${part}` : `apps/${name}/${name}-${part}`;
 			const pathAbsolute = join(Fs.absoluteRootPath, path);
-			const isPackageJson = await this.isPackageJson(pathAbsolute);
-			const isLockFile = await this.isLockFile(pathAbsolute);
+			const isPackageJson = await Fs.exists(pathAbsolute, 'package.json');
+			const isLockFile = await Fs.exists(pathAbsolute, 'pnpm-lock.yaml');
 
 			if (!isPackageJson && !isLockFile) {
 				Console.warning(`There is no "package.json" and "pnpm-lock.yaml" file for "${path}". Dependency installation skipped.`);
@@ -113,34 +112,6 @@ export class Pnpm {
 
 		if (!success) {
 			Console.error(`Something went wrong while linking aliases for "${path}". Action stopped.`);
-		}
-	}
-
-	/**
-	 * Check for package.json
-	 */
-	private static async isPackageJson(path: string): Promise<boolean> {
-		const {F_OK} = constants;
-
-		try {
-			await access(join(path, 'package.json'), F_OK);
-			return true;
-		} catch (e) {
-			return false;
-		}
-	}
-
-	/**
-	 * Check for pnpm-lock.yaml
-	 */
-	private static async isLockFile(path: string): Promise<boolean> {
-		const {F_OK} = constants;
-
-		try {
-			await access(join(path, 'pnpm-lock.yaml'), F_OK);
-			return true;
-		} catch (e) {
-			return false;
 		}
 	}
 }

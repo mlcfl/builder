@@ -4,7 +4,7 @@ import {Project, Git, Console, Pnpm, CliArgs} from '~/services';
  * Update common parts
  */
 export const updateCommon = async (args: CliArgs.Update): Promise<void> => {
-	await Project.onCommon(args, async (name, parts) => {
+	await Project.ifExists.onCommon(args, async (name, parts) => {
 		for (const part of parts) {
 			Git.pull(`common/${name}-${part}`);
 		}

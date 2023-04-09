@@ -13,7 +13,7 @@ export type Entry = {
 /**
  * Common parts and boot entry point
  */
-const getCommon = (args: CliArgs.Build) => Project.onCommon(args, ['all', 'backend'], (common, parts) => {
+const getCommon = (args: CliArgs.Build) => Project.ifExists.onCommon(args, ['all', 'backend'], (common, parts) => {
 	const {absoluteRootPath} = Fs;
 
 	return parts.reduce<Entry[]>((acc, part) => {
@@ -50,7 +50,7 @@ const getCommon = (args: CliArgs.Build) => Project.onCommon(args, ['all', 'backe
 /**
  * Applications
  */
-const getApps = (args: CliArgs.Build) => Project.onEachApp(args, ['common', 'backend'], (app, parts) => {
+const getApps = (args: CliArgs.Build) => Project.ifExists.onEachApp(args, ['common', 'backend'], (app, parts) => {
 	const {absoluteRootPath} = Fs;
 
 	return parts.reduce<Entry[]>((acc, part) => {
