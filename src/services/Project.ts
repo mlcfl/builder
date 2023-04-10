@@ -44,7 +44,7 @@ export class Project {
 		const {strict} = args;
 		const execute = !strict || (strict && !this.skipApp(args, name));
 
-		if (await this.exists(name) && execute) {
+		if (await this.exists(`${name}/.git`) && execute) {
 			return await cb(name);
 		}
 	}
