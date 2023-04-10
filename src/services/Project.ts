@@ -89,8 +89,9 @@ export class Project {
 		const isFunction = typeof filterOrCb === 'function';
 		const filter = isFunction ? parts.app : filterOrCb;
 		const callback = isFunction ? filterOrCb : cb as Cb<U>;
+		const lastIndex = apps.length - 1;
 
-		for (const app of apps) {
+		for (const [i, app] of Object.entries(apps)) {
 			if (this.skipApp(args, app)) {
 				continue;
 			}
@@ -99,6 +100,7 @@ export class Project {
 				parts.app,
 				part => `apps/${app}/${app}-${part}`,
 				part => !this.skipPart(args, part) && filter.includes(part),
+				Number(i) === lastIndex,
 			);
 
 			if (filteredParts.length) {
@@ -149,12 +151,13 @@ export class Project {
 		parts: string[],
 		pathTemplate: (part: string) => string,
 		filterCb: (part: string) => boolean,
+		changeFlag = true,
 	): Promise<string[]> {
 		const lastIndex = parts.length - 1;
 		const result: string[] = [];
 
 		for (const [i, part] of Object.entries(parts)) {
-			const physicallyExists = await this.exists(pathTemplate(part), Number(i) === lastIndex);
+			const physicallyExists = await this.exists(pathTemplate(part), changeFlag && Number(i) === lastIndex);
 
 			if (physicallyExists && filterCb(part)) {
 				result.push(part);
