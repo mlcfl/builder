@@ -1,11 +1,13 @@
-import {RollupWatcher} from 'rollup';
+import type {RollupWatcher} from 'rollup';
+import type {ViteDevServer} from 'vite';
 import {backend} from './backend';
 import {frontend} from './frontend';
-import {CliArgs} from '~/services';
+import type {CliArgs} from '~/services';
 
+// Return void if build mode, return watchers if watch mode
 type BuildResult = {
 	readonly watcherBackend: void | RollupWatcher;
-	readonly watcherFrontend: void | unknown;
+	readonly watcherFrontend: void | ViteDevServer;
 };
 
 /**
