@@ -37,7 +37,7 @@ export const bootProject = async (args: CliArgs.Start): Promise<void> => {
 		if (mode === CliModes.Dev) {
 			throw e;
 		} else {
-			Console.error(`critical - ${e instanceof Error ? e.message : String(e)}`, true);
+			Console.error(`[critical] ${e instanceof Error ? e.message : String(e)}`, true);
 		}
 	}
 };
