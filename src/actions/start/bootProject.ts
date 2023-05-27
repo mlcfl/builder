@@ -1,5 +1,5 @@
 import {join} from 'node:path';
-import {Fs, Console, CliArgs} from '~/services';
+import {Fs, Console, CliArgs, CliModes} from '~/services';
 import {config} from '~/config';
 import {env} from '~/env';
 
@@ -33,6 +33,11 @@ export const bootProject = async (args: CliArgs.Start): Promise<void> => {
 			// Any other codes...
 		}
 
-		throw e;
+		// Stop dev server if error, but not test or prod
+		if (mode === CliModes.Dev) {
+			throw e;
+		} else {
+			Console.error(`critical - ${e instanceof Error ? e.message : String(e)}`, true);
+		}
 	}
 };

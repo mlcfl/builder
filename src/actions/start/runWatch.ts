@@ -2,7 +2,6 @@ import {exit, argv} from 'node:process';
 import {join} from 'node:path';
 import {RollupWatcherEvent} from 'rollup';
 import nodemon from 'nodemon';
-import chalk from 'chalk';
 import {Fs, Console, CliArgs} from '~/services';
 import {build} from '../build';
 import {getWatchEntries} from './getWatchEntries';
@@ -11,9 +10,12 @@ import {getWatchEntries} from './getWatchEntries';
  * Start nodemon
  */
 const startNodemon = async (args: CliArgs.Start): Promise<void> => {
+	const script = join(Fs.absoluteRootPath, 'builder/dist/actions/start/nodemonMiddleware.js');
+	const watch = await getWatchEntries(args);
+
 	nodemon({
-		script: join(Fs.absoluteRootPath, 'builder/dist/actions/start/nodemonMiddleware.js'),
-		watch: await getWatchEntries(args),
+		script,
+		watch,
 		args: argv.slice(2),
 		delay: 1000,
 	});
@@ -22,7 +24,7 @@ const startNodemon = async (args: CliArgs.Start): Promise<void> => {
 		.on('restart', () => Console.info('Backend has been restarted.'))
 		.once('start', () => Console.info('The project has been started in "watch" mode.'))
 		.once('crash', () => {
-			console.error(chalk.red('Backend has been crashed.'));
+			Console.error('Backend has been crashed.', true);
 			nodemon.emit('quit');
 			exit(1);
 		});

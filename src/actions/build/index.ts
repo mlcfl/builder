@@ -1,5 +1,6 @@
 import {RollupWatcher} from 'rollup';
 import {backend} from './backend';
+import {frontend} from './frontend';
 import {CliArgs} from '~/services';
 
 type BuildResult = {
@@ -12,5 +13,5 @@ type BuildResult = {
  */
 export const build = async (args: CliArgs.Build): Promise<BuildResult> => ({
 	watcherBackend: await backend(args),
-	watcherFrontend: null,
+	watcherFrontend: await frontend(args),
 });

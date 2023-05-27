@@ -12,8 +12,14 @@ export class Console {
 		console.warn(chalk.yellow(`Warning: ${text}`));
 	}
 
-	static error(text: string): never {
-		throw new Error(chalk.red(text));// The error object is already prefixed with "Error:"
+	static error(text: string): never
+	static error(text: string, doNotEmitError: boolean): void
+	static error(text: string, doNotEmitError?: boolean): void | never {
+		if (doNotEmitError) {
+			console.error(chalk.red(`Error: ${text}`));
+		} else {
+			throw new Error(chalk.red(text));// The error object is already prefixed with "Error:"
+		}
 	}
 
 	static info(text: string): void {
