@@ -1,13 +1,15 @@
 import {defineConfig, RollupOptions} from 'rollup';
 import {CliArgs} from '~/services';
 import {getEntries, Entry} from './getEntries';
-import {pluginAliases} from './pluginAliases';
-import {pluginJson} from './pluginJson';
-import {pluginNodeResolve} from './pluginNodeResolve';
-import {pluginCommonJs} from './pluginCommonJs';
-import {pluginTypescript} from './pluginTypescript';
 import {external} from './external';
 import {watch} from './watch';
+import {
+	pluginAliases,
+	pluginJson,
+	pluginNodeResolve,
+	pluginCommonJs,
+	pluginTypescript,
+} from './plugins';
 
 /**
  * Rollup configuration for each entry file
