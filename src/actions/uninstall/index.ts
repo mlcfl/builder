@@ -4,7 +4,7 @@ import {checkProjectName} from './checkProjectName';
 import {askReallyDelete} from './askReallyDelete';
 import {askDeletePersonal} from './askDeletePersonal';
 import {remove} from './remove';
-import {Console, CliArgs} from '~/services';
+import {Console, type CliArgs} from '~/services';
 import {config} from '~/config';
 
 /**

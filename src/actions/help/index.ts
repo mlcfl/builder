@@ -1,6 +1,6 @@
 import shell from 'shelljs';
 import chalk from 'chalk';
-import {Console, CliArgs} from '~/services';
+import {Console, type CliArgs} from '~/services';
 import {getPackageJson} from './getPackageJson';
 
 /**

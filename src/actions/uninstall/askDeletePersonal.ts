@@ -1,7 +1,7 @@
-import {Interface} from 'node:readline/promises';
+import type {Interface} from 'node:readline/promises';
 import {attention} from './attention';
 import {answerToBoolean} from './answerToBoolean';
-import {CliArgs} from '~/services';
+import type {CliArgs} from '~/services';
 
 /**
  * Delete personal data?

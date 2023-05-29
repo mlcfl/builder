@@ -1,4 +1,4 @@
-import {CliArgs} from '~/services';
+import type {CliArgs} from '~/services';
 
 /**
  * Test

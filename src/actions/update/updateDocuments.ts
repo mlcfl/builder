@@ -1,4 +1,4 @@
-import {Project, Git, Console, CliArgs} from '~/services';
+import {Project, Git, Console, type CliArgs} from '~/services';
 
 /**
  * Update documents

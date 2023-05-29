@@ -1,4 +1,4 @@
-import {Project, Git, Console, Pnpm, CliArgs} from '~/services';
+import {Project, Git, Console, Pnpm, type CliArgs} from '~/services';
 
 /**
  * Update applications

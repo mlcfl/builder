@@ -1,4 +1,4 @@
-import {Base} from './Cli/Arguments';
+import type {Base} from './Cli/Arguments';
 import {Fs} from './Fs';
 import {config} from '~/config';
 

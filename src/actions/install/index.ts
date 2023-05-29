@@ -2,7 +2,7 @@ import {copyEnv} from './copyEnv';
 import {cloneRepositories} from './cloneRepositories';
 import {initPnpm} from './initPnpm';
 import {checkFilesCount} from './checkFilesCount';
-import {Console, Fs, CliArgs} from '~/services';
+import {Console, Fs, type CliArgs} from '~/services';
 import {basicStructure} from '~/utils';
 import {config} from '~/config';
 

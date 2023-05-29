@@ -1,4 +1,4 @@
-import {Project, Pnpm, CliArgs} from '~/services';
+import {Project, Pnpm, type CliArgs} from '~/services';
 
 /**
  * Run "pnpm install" and then "pnpm link" for common/* aliases

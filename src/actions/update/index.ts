@@ -2,7 +2,7 @@ import {updateBuilder} from './updateBuilder';
 import {updateDocuments} from './updateDocuments';
 import {updateCommon} from './updateCommon';
 import {updateApps} from './updateApps';
-import {Console, CliArgs} from '~/services';
+import {Console, type CliArgs} from '~/services';
 import {config} from '~/config';
 
 /**

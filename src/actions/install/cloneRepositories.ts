@@ -1,4 +1,4 @@
-import {Fs, Git, Console, Project, CliArgs} from '~/services';
+import {Fs, Git, Console, Project, type CliArgs} from '~/services';
 
 const {absoluteRootPath} = Fs;
 
