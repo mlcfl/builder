@@ -25,4 +25,8 @@ export class Console {
 	static info(text: string): void {
 		console.info(chalk.blueBright(text));
 	}
+
+	static log(...any: unknown[]): void {
+		console.log(...any);
+	}
 }
