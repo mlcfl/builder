@@ -12,6 +12,7 @@
 		"test": "node dist/test.js",
 		"build": "node dist/build.js -m prod",
 		"build:test": "node dist/build.js -m test",
+		"build:dev": "node dist/build.js -m dev",
 		"start": "node dist/start.js -m prod",
 		"start:test": "node dist/start.js -m test",
 		"start:dev": "node dist/start.js -m dev",
