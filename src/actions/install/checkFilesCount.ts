@@ -9,6 +9,6 @@ export const checkFilesCount = async (): Promise<void> => {
 	const {length} = await readdir(Fs.absoluteRootPath);
 
 	if (!maxFilesCount.includes(length)) {
-		Console.warning(`Hmm, I expected ${maxFilesCount.join(' or ')} files in the root project directory, but you have ${length}. Why so, dear? 🙃`);
+		Console.warning(`Hmm, I expected ${maxFilesCount.join(' or ')} files in the root project directory, but you have ${length}. Why so, dear? (●__●)`);
 	}
 };
