@@ -17,6 +17,7 @@ type ReinstallOption = {
 type BuildStart = {
 	readonly mode: Modes;
 	readonly watch?: boolean;// in "start:dev --watch" mode
+	readonly buildOnly?: 'frontend' | 'backend';
 }
 
 /**

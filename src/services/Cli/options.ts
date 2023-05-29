@@ -29,11 +29,16 @@ export const options = {
 		'-m, --mode <mode>',
 		'Mode type'
 	).choices(Object.values(Modes)).hideHelp(),
-	// Only for "start:dev" action
+	// Only for "build:dev" or "start:dev" action
 	watch: new Option(
 		'-w, --watch',
 		'Run in watch mode to watch changes and rebuild on the fly.'
 	),
+	// Only for "build:dev" or "start:dev" action
+	buildOnly: new Option(
+		'-bo, --build-only <part>',
+		'Compiling frontend only or backend only. Both if not specified.'
+	).choices(['frontend', 'backend']),
 	// Only for "reinstall" action
 	reinstall: new Option(
 		'-r, --reinstall',

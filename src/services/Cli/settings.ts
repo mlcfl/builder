@@ -33,6 +33,7 @@ const {
 	strict,
 	mode,
 	watch,
+	buildOnly,
 	reinstall,
 } = options;
 
@@ -74,13 +75,13 @@ export const settings: Record<Actions, SettingsItem> = {
 	},
 	build: {
 		description: (mode: Modes): string => `Builds the project in ${getHumanText(mode)}.`,
-		options: [...base, mode, watch],
+		options: [...base, mode, watch, buildOnly],
 	},
 	start: {
 		description: (mode: Modes): string => {
 			const opening = mode === Modes.Dev ? 'Builds and starts' : 'Starts';
 			return `${opening} the project in ${getHumanText(mode)}.`;
 		},
-		options: [...base, mode, watch],
+		options: [...base, mode, watch, buildOnly],
 	},
 };

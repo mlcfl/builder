@@ -13,7 +13,13 @@ type BuildResult = {
 /**
  * Build process
  */
-export const build = async (args: CliArgs.Build): Promise<BuildResult> => ({
-	watcherBackend: await backend(args),
-	watcherFrontend: await frontend(args),
-});
+export const build = async (args: CliArgs.Build): Promise<BuildResult> => {
+	const {buildOnly} = args;
+	const watcherBackend = !buildOnly || buildOnly === 'backend' ? await backend(args) : undefined;
+	const watcherFrontend = !buildOnly || buildOnly === 'frontend' ? await frontend(args) : undefined;
+
+	return {
+		watcherBackend,
+		watcherFrontend,
+	};
+};
