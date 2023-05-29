@@ -50,8 +50,8 @@ dependencies:
     specifier: ^0.8.5
     version: 0.8.5
   tslib:
-    specifier: ^2.5.0
-    version: 2.5.0
+    specifier: ^2.5.2
+    version: 2.5.2
   typescript:
     specifier: ^4.9.5
     version: 4.9.5
@@ -1136,7 +1136,7 @@ packages:
       fs-extra: 10.1.0
       rollup: 3.18.0
       semver: 7.3.8
-      tslib: 2.5.0
+      tslib: 2.5.2
       typescript: 4.9.5
     dev: false
 
@@ -1243,8 +1243,8 @@ packages:
       nopt: 1.0.10
     dev: false
 
-  /tslib@2.5.0:
-    resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
+  /tslib@2.5.2:
+    resolution: {integrity: sha512-5svOrSA2w3iGFDs1HibEVBGbDrAY82bFQ3HZ3ixB+88nsbsWQoKqDRb5UBYAUPEzbBn6dAp5gRNXglySbx1MlA==}
     dev: false
 
   /typescript@4.9.5:
