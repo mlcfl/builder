@@ -135,6 +135,7 @@ export class Cli {
 	private static filterNonExistentValues<T extends Arguments.All>(args: T): T {
 		const {strict} = args as {strict?: boolean};
 		const {apps, parts: {app, common}} = config;
+		const flatApps = apps.map(i => Array.isArray(i) ? i[0] : i);
 		const allParts = [...new Set([...app, ...common])];
 		const allKeys = [
 			['include', 'exclude'],
@@ -146,7 +147,7 @@ export class Cli {
 			const text = isPart ? 'part' : 'application';
 			const standart = isPart
 				? (strict ? allParts : app)
-				: (strict ? [...apps, 'common', 'documents', 'builder'] : apps);
+				: (strict ? [...flatApps, 'common', 'documents', 'builder'] : flatApps);
 
 			for (const key of keys) {
 				const k = key as keyof T;

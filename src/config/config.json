@@ -5,10 +5,11 @@
 	"defaultApp": "root",
 	"apps": [
 		"root",
-		"auth"
-	],
-	"noAuthApps": [
-		"welcome"
+		"auth",
+		["welcome", {
+			"auth": false,
+			"parts": ["backend"]
+		}]
 	],
 	"parts": {
 		"common": [

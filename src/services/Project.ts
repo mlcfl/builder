@@ -86,18 +86,22 @@ export class Project {
 	static async onEachApp<T extends Base, U>(args: T, filterOrCb: string[] | Cb<U>, cb?: Cb<U>): Promise<U[]> {
 		const {apps, parts} = config;
 		const results: U[] = [];
-		const isFunction = typeof filterOrCb === 'function';
-		const filter = isFunction ? parts.app : filterOrCb;
-		const callback = isFunction ? filterOrCb : cb as Cb<U>;
+		const isCb = typeof filterOrCb === 'function';
+		const callback = isCb ? filterOrCb : cb as Cb<U>;
 		const lastIndex = apps.length - 1;
 
-		for (const [i, app] of Object.entries(apps)) {
+		for (const [i, item] of Object.entries(apps)) {
+			const hasOwnParams = Array.isArray(item);
+			const app = hasOwnParams ? item[0] : item;
+			const appParts = hasOwnParams ? item[1].parts : parts.app;
+			const filter = isCb ? appParts : this.getFilter(filterOrCb, appParts, hasOwnParams);
+
 			if (this.skipApp(args, app)) {
 				continue;
 			}
 
 			const filteredParts = await this.filterParts(
-				parts.app,
+				appParts,
 				part => `apps/${app}/${app}-${part}`,
 				part => !this.skipPart(args, part) && filter.includes(part),
 				Number(i) === lastIndex,
@@ -110,6 +114,17 @@ export class Project {
 
 		this._ifExists = false;
 		return results;
+	}
+
+	/**
+	 * If the application has its own params (own number of parts), use only these parts in the filter
+	 */
+	private static getFilter(filterOrCb: string[], appParts: string[], hasOwnParams: boolean) {
+		if (hasOwnParams) {
+			return filterOrCb.filter(item => appParts.includes(item));
+		}
+
+		return filterOrCb;
 	}
 
 	/**
