@@ -1,16 +1,16 @@
-import type {RollupWatcher} from 'rollup';
+import type {ViteDevServer} from 'vite';
 import type {CliArgs} from '~/services';
 import {getConfigs} from './getConfigs';
 import {build} from './build';
 import {buildWatch} from './buildWatch';
 
 /**
- * Build backend
+ * Build frontend
  */
-export const backend = async (args: CliArgs.Build): Promise<void | RollupWatcher> => {
+export const frontend = async (args: CliArgs.Build): Promise<void | ViteDevServer[]> => {
 	const configs = await getConfigs(args);
 
 	return args.watch
-		? buildWatch(configs)
+		? await buildWatch(configs)
 		: await build(configs);
 };

@@ -7,7 +7,7 @@ import type {CliArgs} from '~/services';
 // Return void if build mode, return watchers if watch mode
 type BuildResult = {
 	readonly watcherBackend: void | RollupWatcher;
-	readonly watcherFrontend: void | ViteDevServer;
+	readonly watcherFrontend: void | ViteDevServer[];
 };
 
 /**
