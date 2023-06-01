@@ -8,7 +8,7 @@
 		"auth",
 		["welcome", {
 			"auth": false,
-			"parts": ["backend"]
+			"parts": ["backend", "frontend"]
 		}]
 	],
 	"parts": {
