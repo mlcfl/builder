@@ -1,4 +1,4 @@
-import {mkdir, access} from 'node:fs/promises';
+import {mkdir, access, readFile, rm} from 'node:fs/promises';
 import {constants, readdirSync, statSync} from 'node:fs';
 import {cwd} from 'node:process';
 import {join, extname} from 'node:path';
@@ -108,5 +108,25 @@ export class Fs {
 		entryPoints.push(join(pathToSrc, 'actions/start/nodemonMiddleware.ts'));
 
 		return entryPoints;
+	}
+
+	/**
+	 * Get file content
+	 */
+	static async readFile(path: string, asJson?: false): Promise<string>
+	static async readFile<T>(path: string, asJson?: true): Promise<T>
+	static async readFile<T>(path: string, asJson = true): Promise<T | string> {
+		const content = await readFile(path, {encoding: 'utf-8'});
+
+		return asJson ? JSON.parse(content) : content;
+	}
+
+	/**
+	 * Remove files or directories
+	 */
+	static async rm(...paths: string[]): Promise<void> {
+		for (const path of paths) {
+			await rm(path, {recursive: true, force: true});
+		}
 	}
 }
