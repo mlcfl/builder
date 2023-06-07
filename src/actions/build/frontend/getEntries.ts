@@ -6,8 +6,8 @@ export type Entry = {
 	readonly part: string,
 	readonly fullname: string,
 	readonly rootDir: string,
-	readonly inputFile: string,
 	readonly distDir: string,
+	readonly configPath: string,
 	readonly tsConfigPath: string,
 };
 
@@ -26,8 +26,8 @@ const getApps = (args: CliArgs.Build) => Project.ifExists.onEachApp(args, ['fron
 			part,
 			fullname: name,
 			rootDir: join(absoluteRootPath, path),
-			inputFile: join(absoluteRootPath, `${path}/src/index.ts`),
 			distDir: join(absoluteRootPath, `${path}/dist`),
+			configPath: join(absoluteRootPath, `${path}/app.config.json`),
 			tsConfigPath: join(absoluteRootPath, `${path}/tsconfig.json`),
 		});
 

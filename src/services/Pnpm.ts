@@ -38,8 +38,17 @@ export class Pnpm {
 		const path = '../../../common';
 		const dirs = {
 			common: [`${path}/common-all`],
-			backend: [`${path}/common-all`, `${path}/common-backend`, `../${name}-common`],
-			frontend: [`${path}/common-all`, `${path}/common-frontend`, `../${name}-common`],
+			backend: [
+				`${path}/common-all`,
+				`${path}/common-backend`,
+				`../${name}-common`,
+			],
+			frontend: [
+				`${path}/common-all`,
+				`${path}/common-backend`,// for SSR & SSG only (SsrRenderer import)
+				`${path}/common-frontend`,
+				`../${name}-common`,
+			],
 		};
 
 		const installed = await this.init({name, parts, dirs, isCommon: false});

@@ -1,4 +1,7 @@
-import {Entry} from './getEntries';
+type Entry = {
+	readonly name: string;
+	readonly fullname: string;
+};
 
 /**
  * Field "external" for rollup
@@ -14,8 +17,20 @@ export const external = ({name, fullname}: Entry): RegExp[] => {
 		'common-boot': [/common-all/],
 		'common-frontend': [/common-all/],
 		[`${app}-common`]: [/common-all/],
-		[`${app}-backend`]: [/common-all/, /common-backend/, new RegExp(`${name}-common`)],
-		[`${app}-frontend`]: [/common-all/, /common-frontend/, new RegExp(`${name}-common`)],
+		[`${app}-backend`]: [
+			/common-all/,
+			/common-backend/,
+			/common-be/,
+			new RegExp(`${name}-common`),
+		],
+		[`${app}-frontend`]: [
+			/common-all/,
+			/common-backend/,// for SSR & SSG only (SsrRenderer import)
+			/common-be/,// for SSR & SSG only (SsrRenderer import)
+			/common-frontend/,
+			/common-fe/,
+			new RegExp(`${name}-common`),
+		],
 	}[fullname] ?? [];
 
 	// Result entries

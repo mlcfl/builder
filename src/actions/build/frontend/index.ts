@@ -1,16 +1,28 @@
 import type {ViteDevServer} from 'vite';
-import type {CliArgs} from '~/services';
-import {getConfigs} from './getConfigs';
+import {Console, type CliArgs} from '~/services';
 import {build} from './build';
 import {buildWatch} from './buildWatch';
+import {Frontend} from './Frontend';
+import {ReadyToBuildArgs} from './types';
 
 /**
  * Build frontend
  */
 export const frontend = async (args: CliArgs.Build): Promise<void | ViteDevServer[]> => {
-	const configs = await getConfigs(args);
+	const fe = new Frontend(args);
 
-	return args.watch
-		? await buildWatch(configs)
-		: await build(configs);
+	fe.emitter.on(Frontend.Events.ReadyToBuild, async ({app, entryName, entryConfig, type, viteConfig}: ReadyToBuildArgs) => {
+		try {
+			await build(viteConfig);
+
+			if (type === 'ssg') {
+				await fe.transformToSsg(app, entryConfig, entryName);
+			}
+		} catch (e) {
+			Console.error(`Frontend ${type.toUpperCase()} build, application "${app.name}", entry "${entryName}"`, true);
+			throw e;
+		}
+	});
+
+	await fe.prepare();
 };
