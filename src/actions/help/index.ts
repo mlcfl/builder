@@ -1,14 +1,16 @@
+import {join} from 'node:path';
 import shell from 'shelljs';
 import chalk from 'chalk';
-import {Console, type CliArgs} from '~/services';
-import {getPackageJson} from './getPackageJson';
+import {Fs, Console, type CliArgs} from '~/services';
 
 /**
  * Help
  */
 export const help = async (args: CliArgs.Help): Promise<void> => {
 	const line = chalk.cyan(Array(10).fill('-').join(''));
-	const {scripts} = await getPackageJson();
+	// "import json from '../package.json';" breaks "build:builder" action -> use readFile
+	const path = join(Fs.absoluteRootPath, 'builder/package.json');
+	const {scripts} = await Fs.readFile<{scripts: Record<string, string>}>(path);
 	const ownActions = Object.values(scripts).filter(action => /^node dist\//.test(action));
 
 	console.log(line);
