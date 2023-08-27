@@ -10,11 +10,7 @@ export type ConfigMode = 'development' | 'production';
  * Entry point options
  */
 export type EntryPointCsrOptions = {
-	readonly entryClient: string;// path to CSR entry
-	readonly template?: never;
-} | {
-	readonly entryClient?: never;
-	readonly template: string;// path to html template
+	readonly entryClient: string;// path to CSR entry (.html file in the root directory)
 };
 
 export type EntryPointSsrOptions = {};

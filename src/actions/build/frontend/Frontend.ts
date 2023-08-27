@@ -4,7 +4,7 @@ import {join, parse} from 'node:path';
 import {readdir, writeFile} from 'node:fs/promises';
 import type {InlineConfig} from 'vite';
 import vue from '@vitejs/plugin-vue';
-import {Fs, CliModes, Console, type CliArgs} from '~/services';
+import {Fs, CliModes, type CliArgs} from '~/services';
 import {external} from '../external';
 import {pluginAliases} from '../plugins';
 import {getEntries, type Entry} from './getEntries';
@@ -100,35 +100,15 @@ export class Frontend {
 		const common = this._getCommonConfig(app);
 
 		for (const [entryName, entryConfig] of Object.entries(appConfig)) {
-			const {entryClient, template} = entryConfig;
-			// @see https://github.com/vitejs/vite/discussions/9400
-			// @see https://stackoverflow.com/questions/71295772/in-vite-is-there-a-way-to-update-the-root-html-name-from-index-html
-			const root = template ? join(rootDir, 'src') : rootDir;
-			const input = template
-				? join(rootDir, template)
-				: (entryClient ? join(rootDir, entryClient) : null);
-
-			if (!input) {
-				Console.error(`Frontend CSR build, application "${app.name}", entry "${entryName}": neither the "template" field nor the "entryClient" field was found in the configuration file.`);
-			}
-
+			const {entryClient} = entryConfig;
 			const viteConfig: InlineConfig = {
 				...common,
-				root,
 				build: {
 					...common.build,
-					emptyOutDir: true,
 					rollupOptions: {
-						input,
+						input: join(rootDir, entryClient),
 					},
 				},
-				plugins: [
-					...(common.plugins ?? []),
-					htmlMinifier({
-						removeComments: true,
-						collapseWhitespace: true,
-					}),
-				],
 			};
 
 			this.emitter.emit(Events.ReadyToBuild, {
@@ -172,7 +152,6 @@ export class Frontend {
 					build: {
 						...common.build,
 						ssrManifest: true,
-						emptyOutDir: true,
 						rollupOptions: {
 							input: join(rootDir, entryClient),
 						},
@@ -224,6 +203,7 @@ export class Frontend {
 				minify: this._isDev ? false : 'esbuild',
 				copyPublicDir: false,
 				sourcemap: false,
+				emptyOutDir: true,
 			},
 			plugins: [
 				vue(),
