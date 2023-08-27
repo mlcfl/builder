@@ -63,6 +63,7 @@ export class Pnpm {
 	 */
 	private static async init({name, parts, dirs, isCommon}: InitArgs): Promise<string[]> {
 		const keys = Object.keys(dirs);
+		const rootPath = Fs.absoluteRootPath;
 		const result: string[] = [];
 
 		for (const part of parts) {
@@ -71,7 +72,7 @@ export class Pnpm {
 			}
 
 			const path = isCommon ? `common/${name}-${part}` : `apps/${name}/${name}-${part}`;
-			const pathAbsolute = join(Fs.absoluteRootPath, path);
+			const pathAbsolute = join(rootPath, path);
 			const isPackageJson = await Fs.exists(pathAbsolute, 'package.json');
 			const isLockFile = await Fs.exists(pathAbsolute, 'pnpm-lock.yaml');
 
@@ -81,7 +82,7 @@ export class Pnpm {
 			}
 
 			result.push(part);
-			Fs.cd(Fs.absoluteRootPath, path);
+			Fs.cd(rootPath, path);
 
 			// Install dependencies
 			if (isLockFile) {
@@ -90,7 +91,13 @@ export class Pnpm {
 
 			// Linking
 			if (isPackageJson) {
-				dirs[part].forEach(link => this.link(path, link));
+				for (const link of dirs[part]) {
+					const linkedPackageJson = join(pathAbsolute, link, '/package.json');
+
+					if (await Fs.exists(linkedPackageJson)) {
+						this.link(path, link);
+					}
+				}
 			}
 		}
 
