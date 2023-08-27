@@ -124,12 +124,54 @@ export class Frontend {
 	/**
 	 * Prepare SSR (Server Side Rendering)
 	 */
-	private async _prepareSsr(entry: Entry, appConfig?: AppConfigSsr): Promise<void> {
+	private async _prepareSsr(app: Entry, appConfig?: AppConfigSsr): Promise<void> {
 		if (!appConfig || !Object.keys(appConfig).length) {
 			return;
 		}
 
-		// ...
+		const {rootDir, distDir} = app;
+		const common = this._getCommonConfig(app);
+
+		for (const [entryName, entryConfig] of Object.entries(appConfig)) {
+			const {entryClient, entryServer} = entryConfig;
+			const viteConfig: InlineConfig[] = [
+				// Compile SPA to get assets
+				{
+					...common,
+					build: {
+						...common.build,
+						ssrManifest: true,
+						rollupOptions: {
+							input: join(rootDir, entryClient),
+						},
+					},
+				},
+				// Compile SSR
+				{
+					...common,
+					build: {
+						...common.build,
+						outDir: join(distDir, '/.server'),
+						ssr: true,
+						rollupOptions: {
+							input: join(rootDir, entryServer),
+							external: external(app),
+							plugins: [
+								pluginAliases(),
+							],
+						},
+					},
+				},
+			];
+
+			this.emitter.emit(Events.ReadyToBuild, {
+				app,
+				entryName,
+				entryConfig,
+				viteConfig,
+				type: 'ssr',
+			});
+		}
 	}
 
 	/**

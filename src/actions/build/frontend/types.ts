@@ -13,7 +13,10 @@ export type EntryPointCsrOptions = {
 	readonly entryClient: string;// path to CSR entry (.html file in the root directory)
 };
 
-export type EntryPointSsrOptions = {};
+export type EntryPointSsrOptions = {
+	readonly entryClient: string;// path to CSR entry (.html file in the root directory)
+	readonly entryServer: string;// path to SSR entry (.ts file)
+};
 
 export type EntryPointSsgOptions = {
 	readonly entryClient: string;// path to CSR entry (.html file in the root directory)
