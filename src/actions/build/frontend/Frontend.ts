@@ -1,10 +1,9 @@
 import {pathToFileURL} from 'node:url';
 import {EventEmitter} from 'node:events';
-import {join, parse, extname} from 'node:path';
+import {join, parse} from 'node:path';
 import {readdir, writeFile} from 'node:fs/promises';
-import type {InlineConfig, Manifest} from 'vite';
+import type {InlineConfig} from 'vite';
 import vue from '@vitejs/plugin-vue';
-import {minify} from 'html-minifier-terser';
 import {Fs, CliModes, Console, type CliArgs} from '~/services';
 import {external} from '../external';
 import {pluginAliases} from '../plugins';
@@ -64,21 +63,19 @@ export class Frontend {
 	 */
 	async transformToSsg(app: Entry, entryConfig: EntryPointSsgOptions, entryName: string): Promise<void> {
 		const {rootDir, distDir} = app;
-		const {entryServer, template, pages} = entryConfig;
+		const {entryClient, entryServer, pages} = entryConfig;
 		const {name} = parse(entryServer);
-		const manifestPath = join(distDir, '/manifest.json');
 		const manifestSsrPath = join(distDir, '/ssr-manifest.json');
-		const mainAssets = await this._getMainAssetsHtml(manifestPath);
 		const manifestSsr = await Fs.readFile<Record<string, string[]>>(manifestSsrPath);
 		const {href} = pathToFileURL(join(distDir, `/.server/${name}.js`));
 		const {render} = await import(href);
 		const routes = await this._getRoutesToTransform(rootDir, pages);
+		const template = await Fs.readFile(join(distDir, entryClient), false);
 
 		// Create SSG pages
 		for (const route of routes) {
-			const {html, assets: extraAssets} = await render(route, manifestSsr);
-			const assets = mainAssets + extraAssets;
-			const page = await this._getHtml(join(rootDir, template), {html, assets});
+			const {html, assets} = await render(route, manifestSsr);
+			const page = this._replaceMasks(template, {html, assets});
 			const distFile = route === '/' ? `/${entryName}.html` : `${route}.html`;
 
 			await writeFile(join(distDir, distFile), page);
@@ -86,7 +83,6 @@ export class Frontend {
 
 		// Remove unused
 		await Fs.rm(
-			manifestPath,
 			manifestSsrPath,
 			join(distDir, '/.server'),
 		);
@@ -164,7 +160,7 @@ export class Frontend {
 			return;
 		}
 
-		const {rootDir, distDir, tsConfigPath} = app;
+		const {rootDir, distDir} = app;
 		const common = this._getCommonConfig(app);
 
 		for (const [entryName, entryConfig] of Object.entries(appConfig)) {
@@ -175,8 +171,8 @@ export class Frontend {
 					...common,
 					build: {
 						...common.build,
-						manifest: true,
 						ssrManifest: true,
+						emptyOutDir: true,
 						rollupOptions: {
 							input: join(rootDir, entryClient),
 						},
@@ -188,7 +184,6 @@ export class Frontend {
 					build: {
 						...common.build,
 						outDir: join(distDir, '/.server'),
-						emptyOutDir: true,
 						ssr: true,
 						rollupOptions: {
 							input: join(rootDir, entryServer),
@@ -198,7 +193,6 @@ export class Frontend {
 							],
 						},
 					},
-					root: tsConfigPath,
 				},
 			];
 
@@ -233,6 +227,10 @@ export class Frontend {
 			},
 			plugins: [
 				vue(),
+				htmlMinifier({
+					removeComments: false,
+					collapseWhitespace: true,
+				}),
 			],
 		};
 	}
@@ -251,51 +249,13 @@ export class Frontend {
 	}
 
 	/**
-	 * Return html for the main assets
+	 * Replace masks in html template to content
 	 */
-	private async _getMainAssetsHtml(manifestPath: string): Promise<string> {
-		const manifest = await Fs.readFile<Manifest>(manifestPath);
-
-		return Object.entries(manifest).reduce<string>((assets, [, {isEntry, file, css}]) => {
-			if (isEntry) {
-				const jsHtml = this._getHeadLinks(file);
-				const cssHtml = css ? css.map(this._getHeadLinks) : [];
-				assets += cssHtml.join('') + jsHtml;
-			}
-
-			return assets;
-		}, '');
-	}
-
-	/**
-	 * Return html tags for different assets
-	 */
-	private _getHeadLinks(path: string): string {
-		const ext = extname(path);
-		const prefix = path[0] === '/' ? '' : '/';
-
-		return {
-			'.js': `<script type="module" crossorigin src="${prefix}${path}"></script>`,
-			'.css': `<link rel="stylesheet" href="${prefix}${path}">`,
-		}[ext] ?? '';
-	}
-
-	/**
-	 * Return full html
-	 */
-	private async _getHtml(templatePath: string, data: Record<string, string>): Promise<string> {
-		const template = await Fs.readFile(templatePath, false);
-
-		// Minify before replace to do it faster
-		let minified = await minify(template, {
-			removeComments: false,
-			collapseWhitespace: true,
-		});
-
+	private _replaceMasks(template: string, data: Record<string, string>): string {
 		for (const [mask, content] of Object.entries(data)) {
-			minified = minified.replace(`<!--[${mask}]-->`, content);
+			template = template.replace(`<!--[${mask}]-->`, content);
 		}
 
-		return minified;
+		return template;
 	}
 }

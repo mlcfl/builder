@@ -20,9 +20,8 @@ export type EntryPointCsrOptions = {
 export type EntryPointSsrOptions = {};
 
 export type EntryPointSsgOptions = {
-	readonly entryClient: string;// path to CSR entry
-	readonly entryServer: string;// path to SSR entry
-	readonly template: string;// path to html template
+	readonly entryClient: string;// path to CSR entry (.html file in the root directory)
+	readonly entryServer: string;// path to SSR entry (.ts file)
 	readonly pages?: string[];// pages to compile, if does not exist - all pages
 };
 
