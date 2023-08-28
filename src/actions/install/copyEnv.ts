@@ -1,28 +1,35 @@
 import {join} from 'node:path';
-import {copyFile, constants} from 'node:fs/promises';
+import {writeFile} from 'node:fs/promises';
 import {Console, Fs, CliModes} from '~/services';
 
 /**
  * Copy env files if they don't exist
  */
 export const copyEnv = async () => {
-	const {COPYFILE_EXCL} = constants;
 	const dirSrc = join(Fs.absoluteRootPath, 'builder/src/env');
 	const dirDist = join(Fs.absoluteRootPath, 'builder/dist/env');
-	const defaultEnv = join(dirSrc, '.env.example');
+	const defaultEnvPath = join(dirSrc, '.env.example');
+	const defaultEnv = await Fs.readFile(defaultEnvPath, false);
 
 	for (const mode of Object.values(CliModes)) {
-		try {
-			const file = `.env.${mode}`;
-			await copyFile(defaultEnv, join(dirSrc, file), COPYFILE_EXCL);
-			await copyFile(defaultEnv, join(dirDist, file), COPYFILE_EXCL);
-			Console.info(`Env file "${file}" was created.`);
-		} catch (e) {
-			const fileExistsError = e instanceof Error && 'code' in e && e.code === 'EEXIST';
+		const file = `.env.${mode}`;
+		const distSrc = join(dirSrc, file);
+		const distDist = join(dirDist, file);
 
-			if (!fileExistsError) {
-				throw e;
-			}
+		const env = defaultEnv.replace('MODE=production', `MODE=${{
+			dev: 'development',
+			test: 'test',
+			prod: 'production',
+		}[mode]}`);
+
+		if (!(await Fs.exists(distSrc))) {
+			await writeFile(distSrc, env);
 		}
+
+		if (!(await Fs.exists(distDist))) {
+			await writeFile(distDist, env);
+		}
+
+		Console.info(`Env file "${file}" was created.`);
 	}
 };
