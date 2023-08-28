@@ -10,8 +10,13 @@ import {ReadyToBuildArgs} from './types';
  */
 export const frontend = async (args: CliArgs.Build): Promise<void | ViteDevServer[]> => {
 	const fe = new Frontend(args);
+	const parts: ReadyToBuildArgs[] = [];
 
-	fe.emitter.on(Frontend.Events.ReadyToBuild, async ({app, entryName, entryConfig, type, viteConfig}: ReadyToBuildArgs) => {
+	fe.emitter.on(Frontend.Events.ReadyToBuild, (args: ReadyToBuildArgs) => parts.push(args));
+
+	await fe.prepare();
+
+	for (const {app, entryName, entryConfig, type, viteConfig} of parts) {
 		try {
 			await build(viteConfig);
 
@@ -22,7 +27,5 @@ export const frontend = async (args: CliArgs.Build): Promise<void | ViteDevServe
 			Console.error(`Frontend ${type.toUpperCase()} build, application "${app.name}", entry "${entryName}"`, true);
 			throw e;
 		}
-	});
-
-	await fe.prepare();
+	}
 };
